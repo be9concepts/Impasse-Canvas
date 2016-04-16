@@ -40,7 +40,9 @@ goal_drop = [9,1];
 var level3 = [o_types, x_drops, y_drops, goal_drop]
 
 var levels = [level1, level2, level3];
-var level_counter = 2;
+
+// This decides the level we will load in startGame().
+var level_counter = 0;
 
 function startGame() {
     var current_level = levels[level_counter];
