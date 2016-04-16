@@ -1,2 +1,3 @@
 # Impasse-Canvas
-Impasse Canvas Close (canvas tilemaps)
+Clone of Impasse Flash Game
+Orignal game : http://www.kongregate.com/games/wanderlands/impasse
