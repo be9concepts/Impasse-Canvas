@@ -1,0 +1,211 @@
+//VERY ROUGH VERSION~
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border:1px solid #d3d3d3;
+    background-color: darkgrey;
+}
+</style>
+</head>
+<body onload="startGame()">
+<script>
+
+var obj_size = 50;
+
+var myGamePiece;
+var player = [];
+var goal = [];
+var obstacles = [];
+
+var o_types = [1,1,1,1]
+var x_drops = [2,2,8,8];
+var y_drops = [0,1,1,2];
+var goal_drop = [9,1];
+var level1 = [o_types, x_drops, y_drops, goal_drop]
+
+o_types = [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+x_drops = [0,0,1,2,2,3,4,5,5,7,7,8,9,9];
+y_drops = [0,2,0,0,1,0,2,2,1,0,1,0,0,2];
+goal_drop = [9,1];
+var level2 = [o_types, x_drops, y_drops, goal_drop]
+
+o_types = [1,1,1,1,1,1,1,1,1,1]
+x_drops = [2,2,3,4,4,5,5,6,7,7];
+y_drops = [1,0,1,1,2,1,2,1,0,1];
+goal_drop = [9,1];
+var level3 = [o_types, x_drops, y_drops, goal_drop]
+
+var levels = [level1, level2, level3];
+var level_counter = 2;
+
+function startGame() {
+    var current_level = levels[level_counter];
+    player[0] = new component(50, 50, "white", 10, 60);
+    goal[0] = new component(50, 50, "green", (current_level[3][0]*obj_size)+10,(current_level[3][1]*obj_size)+10);
+    // create obstacles
+
+    var obstacles_x = [];
+    for (var i = 0; i < current_level[1].length; i++) {
+        obstacles_x[i] = (current_level[1][i]*obj_size)+10;
+    };
+    var obstacles_y = [];
+    for (var i = 0; i < current_level[2].length; i++) {
+        obstacles_y[i] = (current_level[2][i]*obj_size)+10;
+    };
+
+    var obstacles_coords = [obstacles_x, obstacles_y];
+    for (var i = 0; i < obstacles_x.length; i++) {
+        if (current_level[0][i] == 1){
+            var col = "black";
+        }
+        if (current_level[0][i] == 2){
+            var col = "blue";
+        }
+    obstacles[i] = new component(obj_size, obj_size, col, obstacles_coords[0][i], obstacles_coords[1][i]);
+    };
+
+    myGameArea.start();
+}
+
+var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = (obj_size*10)+20;
+        this.canvas.height = (obj_size*3)+20;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.interval = setInterval(updateGameArea, 20);
+    },
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+function component(width, height, color, x, y) {
+    this.width = width;
+    this.height = height;
+    this.speedX = 0;
+    this.speedY = 0;
+    if (color == "blue"){
+        this.typ = 2;
+    }   
+    this.x = x;
+    this.y = y;
+    this.need = 0;    
+    this.update = function() {
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    this.newPos = function() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        var moveDistance = obj_size;
+
+        this.need = this.need + this.speedX;
+        if ((this.need >= moveDistance)||(this.need <= -moveDistance)){
+            this.speedX = 0;
+            this.need = 0;
+        }
+        this.need = this.need + this.speedY;
+        if ((this.need >= moveDistance)||(this.need <= -moveDistance)){
+            this.speedY = 0;
+            this.need = 0;
+        }
+        if (this.y >= 160){
+            this.y = 10;
+            this.need=0;
+            this.speedY =0;
+        }
+
+        if (this.y <= 9){
+            this.y = 110;
+            this.need=0;
+            this.speedY =0;
+        }
+    }    
+}
+
+function updateGameArea() {
+    myGameArea.clear();
+    player[0].newPos();    
+    player[0].update(); 
+    goal[0].newPos();    
+    goal[0].update();  
+
+    //Scrolling OBJ
+
+    //OBSTACLE COLLISION DETECTIONS
+    for (var i = 0; i < obstacles.length; i++) {
+        obstacles[i].newPos();    
+        obstacles[i].update(); 
+        if ((player[0].x >= obstacles[i].x)&&(player[0].x <= (obstacles[i].x+30))){
+            //player[0].x is inside player[1]'s x.bounds
+            if ((player[0].y >= obstacles[i].y)&&(player[0].y <= (obstacles[i].y+30))){
+                        //player[0].x is inside player[1]'s x.bounds
+                        startGame();
+                    }
+                }
+            }
+            //GOAL COLLISION DETECTIONS
+        goal[0].newPos();    
+        goal[0].update(); 
+        if ((player[0].x >= goal[0].x)&&(player[0].x <= (goal[0].x+30))){
+            //player[0].x is inside player[1]'s x.bounds
+            if ((player[0].y >= goal[0].y)&&(player[0].y <= (goal[0].y+30))){
+                        //player[0].x is inside player[1]'s x.bounds
+                        loadLevel(level_counter+1);
+                    }
+                }
+            
+    };
+var gameSpeed = 10;
+function moveup() {
+    player[0].speedY -= gameSpeed; 
+    for (var i = 0; i < obstacles.length; i++) {
+        if (obstacles[i].typ == 2){
+            obstacles[i].speedY += gameSpeed;
+        }
+    };
+}
+
+function movedown() {
+    player[0].speedY += gameSpeed;
+
+    for (var i = 0; i < obstacles.length; i++) {
+        if (obstacles[i].typ == 2){
+            obstacles[i].speedY -= gameSpeed;
+        }
+    };
+}
+
+function moveleft() {
+    player[0].speedX -= gameSpeed;
+}
+
+function moveright() {
+    player[0].speedX += gameSpeed; 
+}
+
+function loadLevel(level){
+    obstacles = [];
+    level_counter = level;
+    startGame();
+}
+</script>
+<div style="text-align:center;width:480px;">
+  <button onclick="moveup()">UP</button><br><br>
+  <button onclick="moveleft()">LEFT</button>
+  <button onclick="moveright()">RIGHT</button><br><br>
+  <button onclick="movedown()">DOWN</button>
+</div>
+
+<p>If you click a button the red square will start moving. Click the same button many times, and it will move faster and faster.</p>
+</body>
+</html>
