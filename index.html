@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <style>
 canvas {
-    border:1px solid #d3d3d3;
+    border:28px solid #222222;
+    border-top: 56px solid #222222;
+    border-bottom: 56px solid #222222;
     background-color: darkgrey;
 }
 </style>
 </head>
-<body onload="startGame()">
+<body onload="startGame()" style="text-align:center;">
+
 <script>
 
 var obj_size = 50;
@@ -251,18 +254,23 @@ function loadLevel(level){
     level_counter = level;
     startGame();
 }
+function getLevel(){
+    var lev = document.getElementById('levelfield').value;
+loadLevel(lev-1);
+}
 </script>
+<hr>
 <div style="text-align:center;display:inline-block;">
   <button onclick="moveup()">UP</button><br><br>
   <button onclick="moveleft()">LEFT</button>
   <button onclick="moveright()">RIGHT</button><br><br>
   <button onclick="movedown()">DOWN</button>
 </div>
-
-<h3>Instructions.</h3>
-<ul>
+    <h3>Instructions.</h3>
+<ul style="list-style:none;">
     <li>Use the directional keypad on the right to move</li>
     <li>Avoid objects to reach the check mark and advance to the next level.</li>
+    <li><label>level #: </label><input type="number" id="levelfield" value="1"><button onclick="getLevel()">submit</button></li>
 </ul>
 </body>
 </html>
